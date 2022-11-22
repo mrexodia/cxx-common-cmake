@@ -1,0 +1,9 @@
+[submodule "souper"]
+	path = souper
+	url = https://github.com/fvrmatteo/souper
+[submodule "alive2"]
+	path = alive2
+	url = https://github.com/fvrmatteo/alive2
+[submodule "LIEF"]
+	path = LIEF
+	url = https://github.com/mrexodia/LIEF
