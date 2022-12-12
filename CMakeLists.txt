@@ -92,7 +92,7 @@ function(simple_submodule folder)
         message(STATUS "Submodule '${folder}' not initialized, running git...")
         execute_process(
             COMMAND "${GIT_EXECUTABLE}" submodule update --init
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMAND_ERROR_IS_FATAL ANY
         )
     endif()

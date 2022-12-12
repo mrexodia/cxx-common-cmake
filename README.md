@@ -7,6 +7,8 @@ cmake -B build
 cmake --build build
 ```
 
+_Linux_: For Ubuntu/Debian you need to run: `sudo apt install gcc-multilib g++-multilib gcc-12 g++-12`. This is necessary for cross-compiling a part of remill in 32-bit.
+
 ## Debugging
 
 - If a build of a submodule fails and you want to force a rebuild you can delete `build/<submodule>-prefix`
