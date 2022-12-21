@@ -135,3 +135,63 @@ git submodule update
 cmake -B dependencies/build -S dependencies
 cmake --build dependencies/build
 ```
+
+## GitHub Actions
+
+Below is an example `.github/workflows/build.yml` that uses `hash.py` to build and cache the dependencies:
+
+```yml
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install Ninja
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install -y ninja-build
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install ninja
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ninja
+          else
+            echo "$RUNNER_OS not supported!"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Hash Dependencies
+        id: hash-dependencies
+        run: |
+          python dependencies/hash.py debug > dependencies/hash.txt
+          echo "hash=$(cat dependencies/hash.txt)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Cache Dependencies
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: dependencies/build/install
+          key: ${{ runner.os }}-${{ steps.hash-dependencies.outputs.hash }}
+
+      - name: Build Dependencies
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y gcc-multilib g++-multilib
+          cmake -B dependencies/build -S dependencies "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
+          cmake --build dependencies/build
+
+      - name: Build Project
+        run: |
+          cmake -B build -G Ninja "-DCMAKE_BUILD_TYPE=Debug" "-DCMAKE_PREFIX_PATH=$(pwd)/dependencies/build/install" "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
+          cmake --build build
+```
