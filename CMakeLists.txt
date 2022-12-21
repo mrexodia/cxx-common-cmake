@@ -12,6 +12,9 @@ endif()
 
 # Default to a Release config
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
+if(CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+endif()
 
 project(Dependencies)
 
@@ -129,6 +132,16 @@ simple_git(https://github.com/google/googletest release-1.12.1
     "-Dgtest_force_shared_crt:STRING=ON"
 )
 simple_git(https://github.com/redis/hiredis afc29ee)
+simple_git(https://github.com/Tessil/ordered-map 3774654)
+simple_git(https://github.com/fmtlib/fmt 9.1.0
+    "-DFMT_DOC:STRING=OFF"
+    "-DFMT_TEST:STRING=OFF"
+    "-DFMT_SYSTEM_HEADERS:STRING=ON"
+)
+simple_git(https://github.com/gabime/spdlog edc51df
+    "-DSPDLOG_FMT_EXTERNAL:STRING=ON"
+    "-DSPDLOG_SYSTEM_INCLUDES:STRING=ON"
+)
 simple_submodule(LIEF
     "-DLIEF_EXAMPLES:STRING=OFF"
     "-DLIEF_USE_CCACHE:STRING=oFF"
