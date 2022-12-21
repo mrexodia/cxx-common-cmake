@@ -13,8 +13,11 @@ set(MFILE_ARGS
 )
 
 if(CMAKE_OSX_SYSROOT)
-    list(APPEND MFILE_ARGS "--extra-ccflags=-isysroot ${CMAKE_OSX_SYSROOT}")
-    list(APPEND MFILE_ARGS "--extra-cxxflags=-isysroot ${CMAKE_OSX_SYSROOT}")
+    list(APPEND MFILE_ARGS "--extra-ccflags=-isysroot ${CMAKE_OSX_SYSROOT} ${ADDITIONAL_FLAGS}")
+    list(APPEND MFILE_ARGS "--extra-cxxflags=-isysroot ${CMAKE_OSX_SYSROOT} ${ADDITIONAL_FLAGS}")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+    list(APPEND MFILE_ARGS "--extra-ccflags=${ADDITIONAL_FLAGS}")
+    list(APPEND MFILE_ARGS "--extra-cxxflags=${ADDITIONAL_FLAGS}")
 endif()
 
 if(BUILD_SHARED_LIBS)

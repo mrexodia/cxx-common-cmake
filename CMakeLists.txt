@@ -6,12 +6,15 @@ if(GENERATOR_IS_MULTI_CONFIG)
     message(FATAL_ERROR "Multi-config generators are not supported. Use Make/NMake instead")
 endif()
 
-project(Dependencies)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+	message(FATAL_ERROR "In-tree builds are not supported. Run CMake from a separate directory: cmake -B build")
+endif()
 
 # Default to a Release config
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
+
+project(Dependencies)
+
 message(STATUS "Configuration: ${CMAKE_BUILD_TYPE}")
 
 # Default to build/install (setting this variable is not recommended and might cause conflicts)
@@ -56,6 +59,15 @@ function(ExternalProject_Add name)
     _ExternalProject_Add(${name} ${ARGN} ${HOOK_ARGS})
 endfunction()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+    # Suppress warnings for clang-cl builds, some of these cause compilation errors.
+    set(ADDITIONAL_FLAGS
+        "-w"
+    )
+endif()
+
+# Convert a CMake list to a space-separated list
+list(JOIN ADDITIONAL_FLAGS " " ADDITIONAL_FLAGS)
 
 # Default cache variables for all projects
 list(APPEND CMAKE_ARGS
@@ -66,8 +78,8 @@ list(APPEND CMAKE_ARGS
     "-DBUILD_SHARED_LIBS:STRING=OFF"
     "-DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}"
     "-DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}"
-    "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}"
-    "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}"
+    "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS} ${ADDITIONAL_FLAGS}"
+    "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS} ${ADDITIONAL_FLAGS}"
 )
 
 function(simple_git repo tag)
@@ -81,6 +93,7 @@ function(simple_git repo tag)
             ON
         CMAKE_CACHE_ARGS
             ${CMAKE_ARGS}
+            ${ARGN}
         CMAKE_GENERATOR
             "Ninja"
     )
@@ -101,6 +114,7 @@ function(simple_submodule folder)
             "${folder_path}"
         CMAKE_CACHE_ARGS
             ${CMAKE_ARGS}
+            ${ARGN}
         CMAKE_GENERATOR
             "Ninja"
         # Always trigger the build step (necessary because there is no download step)
@@ -111,13 +125,25 @@ endfunction()
 
 simple_git(https://github.com/gflags/gflags v2.2.2)
 simple_git(https://github.com/google/glog v0.6.0)
-simple_git(https://github.com/google/googletest release-1.12.1)
+simple_git(https://github.com/google/googletest release-1.12.1
+    "-Dgtest_force_shared_crt:STRING=ON"
+)
 simple_git(https://github.com/redis/hiredis afc29ee)
-simple_submodule(LIEF)
-include(capstone.cmake)
-include(z3.cmake)
+simple_submodule(LIEF
+    "-DLIEF_EXAMPLES:STRING=OFF"
+    "-DLIEF_USE_CCACHE:STRING=oFF"
+)
+simple_git(https://github.com/capstone-engine/capstone 087889d # next
+    "-DCAPSTONE_BUILD_TESTS:STRING=OFF"
+)
+simple_git(https://github.com/mrexodia/z3 65df7aef50a0986588d332fa4255ba40486ef15c
+    "-DZ3_BUILD_LIBZ3_SHARED:STRING=OFF"
+)
 include(xed.cmake)
 include(llvm.cmake)
-include(remill.cmake)
+simple_git(https://github.com/mrexodia/remill system-llvm-include
+    "-DUSE_SYSTEM_DEPENDENCIES:STRING=ON"
+    "-DREMILL_ENABLE_TESTING:STRING=OFF"
+)
 simple_submodule(alive2)
 simple_submodule(souper)

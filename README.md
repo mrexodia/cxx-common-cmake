@@ -9,6 +9,8 @@ cmake --build build
 
 _Linux_: For Ubuntu/Debian you need to run: `sudo apt install gcc-multilib g++-multilib gcc-12 g++-12`. This is necessary for cross-compiling a part of remill in 32-bit.
 
+_Windows_: You need to use `clang-cl` to build these dependencies. From a Visual Studio 2022 command prompt, run: `cmake -G "NMake Makefiles" -DCMAKE_C_COMPILER=clang-cl.exe -DCMAKE_CXX_COMPILER=clang-cl.exe -B build`
+
 ## Debugging
 
 - If a build of a submodule fails and you want to force a rebuild you can delete `build/<submodule>-prefix`
