@@ -6,6 +6,7 @@ import sys
 import hashlib
 import subprocess
 import shlex
+import re
 
 def hash_file(path):
     with open(path, "rb") as f:
@@ -54,14 +55,27 @@ def main():
     final_status = str.join("\n", cmake_status)
     final_status += "\n"
     final_status += str.join("\n", submodule_status)
-    final_hash = hashlib.sha1(final_status.encode("utf-8")).hexdigest()
-    sys.stdout.write(final_hash + "\n")
-    sys.stdout.flush()
+    file_hash = hashlib.sha1(final_status.encode("utf-8")).hexdigest()
+
+    # Extract the restore_hash from the last commit message
+    commit_message = git("log -1 --pretty=format:%s")
+    match = re.search(r"(reuse_cache|reuse_hash|restore_hash|cache_hash)=([0-9a-f]+)", commit_message)
+    if match:
+        restore_hash = match.group(2)
+    else:
+        restore_hash = file_hash
+
+    # Print the output variables
+    output_vars = ""
+    output_vars += f"file_hash={file_hash}\n"
+    output_vars += f"restore_hash={restore_hash}\n"
+    sys.stdout.write(output_vars)
 
     # Additional debug output to stderr
     if debug:
+        sys.stderr.write("Debug output:\n")
         sys.stderr.write(final_status + "\n")
-        sys.stderr.write(final_hash + "\n")
+        sys.stderr.write(output_vars)
         sys.stderr.flush()
 
 if __name__ == "__main__":

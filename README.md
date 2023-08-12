@@ -1,19 +1,37 @@
 # dependencies
 
-## Building
+## Building (macOS)
 
 ```sh
+brew install cmake ninja flex bison
 cmake -B build
 cmake --build build
 ```
 
-_Linux_: For Ubuntu/Debian you need to run: `sudo apt install gcc-multilib g++-multilib gcc-12 g++-12`. This is necessary for cross-compiling a part of remill in 32-bit.
+## Building (Linux)
 
-_Windows_: You need to use `clang-cl` to build these dependencies. From a Visual Studio 2022 command prompt, run: `cmake -G "NMake Makefiles" -DCMAKE_C_COMPILER=clang-cl.exe -DCMAKE_CXX_COMPILER=clang-cl.exe -B build`
+**Building with GCC is not supported.**
+
+```sh
+sudo apt install gcc-multilib g++-multilib gcc-12 g++-12 flex bison
+cmake -B build "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
+cmake --build build
+```
+
+## Building (Windows)
+
+**Windows is currently not supported**
+
+**Important**: You need to use `clang-cl` to build the dependencies. Run the command below from a Visual Studio 2022 command prompt.
+
+```sh
+cmake -G "NMake Makefiles" -DCMAKE_C_COMPILER=clang-cl.exe -DCMAKE_CXX_COMPILER=clang-cl.exe -B build
+cmake --build build
+```
 
 ## Debugging
 
-- If a build of a submodule fails and you want to force a rebuild you can delete `build/<submodule>-prefix`
+- If a build of a submodule fails and you want to force a full rebuild you can delete `build/<submodule>-prefix`
 - For an external project you can delete `build/<project>-prefix/src/<project>-stamp`
 
 ## How it works
@@ -143,7 +161,11 @@ Below is an example `.github/workflows/build.yml` that uses `hash.py` to build a
 ```yml
 name: build
 
-on: [push]
+on:
+  push:
+  schedule:
+    # Build master every 5 days to avoid costly cache rebuilds
+    - cron: 0 0 */5 * * # https://crontab.guru/#0_0_*/5_*_*
 
 jobs:
   build:
@@ -151,7 +173,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -172,8 +194,7 @@ jobs:
       - name: Hash Dependencies
         id: hash-dependencies
         run: |
-          python dependencies/hash.py debug > dependencies/hash.txt
-          echo "hash=$(cat dependencies/hash.txt)" >> $GITHUB_OUTPUT
+          python dependencies/hash.py debug > $GITHUB_OUTPUT
         shell: bash
 
       - name: Cache Dependencies
@@ -181,12 +202,15 @@ jobs:
         uses: actions/cache@v3
         with:
           path: dependencies/build/install
-          key: ${{ runner.os }}-${{ steps.hash-dependencies.outputs.hash }}
+          key: ${{ runner.os }}-${{ steps.hash-dependencies.outputs.file_hash }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.hash-dependencies.outputs.restore_hash }}
 
       - name: Build Dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y gcc-multilib g++-multilib
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib flex bison
           cmake -B dependencies/build -S dependencies "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
           cmake --build dependencies/build
 
