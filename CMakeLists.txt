@@ -1,5 +1,5 @@
 # https://alexreinking.com/blog/how-to-use-cmake-without-the-agonizing-pain-part-1.html
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 
 # Bail out early for multi-config generators
 if(GENERATOR_IS_MULTI_CONFIG)
