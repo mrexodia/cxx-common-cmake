@@ -59,76 +59,21 @@ function(ExternalProject_Add name)
     else()
         message(STATUS "ExternalProject: ${name}")
     endif()
-    _ExternalProject_Add(${name} ${ARGN} ${HOOK_ARGS})
+    _ExternalProject_Add(${name} ${ARGN} ${HOOK_ARGS}
+        # Reference: https://www.scivision.dev/cmake-external-project-ninja-verbose/
+        USES_TERMINAL_DOWNLOAD ON
+        USES_TERMINAL_UPDATE ON
+        USES_TERMINAL_PATCH ON
+        USES_TERMINAL_CONFIGURE ON
+        USES_TERMINAL_BUILD ON
+        USES_TERMINAL_INSTALL ON
+        USES_TERMINAL_TEST ON
+    )
 endfunction()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
     # Suppress warnings for clang-cl builds, some of these cause compilation errors.
     set(ADDITIONAL_FLAGS
-        #"-Wno-zero-length-array"
-        #"-Wno-shadow-field-in-constructor"
-        #"-Wno-comma"
-        #"-Wno-unreachable-code"
-        #"-Wno-shadow-field"
-        #"-Wno-gnu-zero-variadic-macro-arguments"
-        #"-Wno-shadow"
-        #"-Wno-documentation"
-        #"-Wno-covered-switch-default"
-        #"-Wno-shadow-uncaptured-local"
-        #"-Wno-unused-macros"
-        #"-Wno-gnu-anonymous-struct"
-        #"-Wno-nested-anon-types"
-        #"-Wno-documentation-unknown-command"
-        #"-Wno-implicit-fallthrough"
-        #"-Wno-unused-but-set-variable"
-        #"-Wno-conditional-uninitialized"
-        #"-Wno-missing-prototypes"
-        #"-Wno-unused-member-function"
-        #"-Wno-unreachable-code-return"
-        #"-Wno-tautological-unsigned-zero-compare"
-        #"-Wno-newline-eof"
-        #"-Wno-implicit-int-conversion"
-        #"-Wno-c99-extensions"
-        #"-Wno-implicit-int-float-conversion"
-        #"-Wno-float-equal"
-        #"-Wno-ctad-maybe-unsupported"
-        #"-Wno-microsoft-unqualified-friend"
-        #"-Wno-unused-private-field"
-        #"-Wno-range-loop-bind-reference"
-        #"-Wno-unknown-argument"
-        #"-Wno-unused-command-line-argument"
-        #"-Wno-dangling-else"
-        #"-Wno-microsoft-cast"
-        #"-Wno-#pragma-messages"
-        #"-Wno-deprecated-declarations"
-        #"-Wno-invalid-noreturn"
-        #"-Wno-c++98-compat"
-        #"-Wno-sign-conversion"
-        #"-Wno-extra-semi-stmt"
-        #"-Wno-undefined-func-template"
-        #"-Wno-switch-enum"
-        #"-Wno-old-style-cast"
-        #"-Wno-zero-as-null-pointer-constant"
-        #"-Wno-c++98-compat-pedantic"
-        #"-Wno-exit-time-destructors"
-        #"-Wno-global-constructors"
-        #"-Wno-unused-parameter"
-        #"-Wno-missing-noreturn"
-        #"-Wno-reserved-identifier"
-        #"-Wno-extra-semi"
-        #"-Wno-undef"
-        #"-Wno-missing-variable-declarations"
-        #"-Wno-nonportable-system-include-path"
-        #"-Wno-deprecated-copy-with-dtor"
-        #"-Wno-unreachable-code-break"
-        #"-Wno-cast-qual"
-        #"-Wno-suggest-override"
-        #"-Wno-unknown-pragmas"
-        #"-Wno-format-nonliteral"
-        #"-Wno-double-promotion"
-        #"-Wno-cast-align"
-        #"-Wno-inconsistent-missing-override"
-        #"-Wno-dtor-name"
         "-w"
     )
 endif()
@@ -195,32 +140,32 @@ simple_git(https://github.com/google/glog v0.6.0)
 simple_git(https://github.com/google/googletest release-1.12.1
     "-Dgtest_force_shared_crt:STRING=ON"
 )
-simple_git(https://github.com/redis/hiredis afc29ee)
-simple_git(https://github.com/Tessil/ordered-map 3774654)
-simple_git(https://github.com/fmtlib/fmt 9.1.0
-    "-DFMT_DOC:STRING=OFF"
-    "-DFMT_TEST:STRING=OFF"
-    "-DFMT_SYSTEM_HEADERS:STRING=ON"
-)
-simple_git(https://github.com/gabime/spdlog edc51df
-    "-DSPDLOG_FMT_EXTERNAL:STRING=ON"
-    "-DSPDLOG_SYSTEM_INCLUDES:STRING=ON"
-)
-simple_submodule(LIEF
-    "-DLIEF_EXAMPLES:STRING=OFF"
-    "-DLIEF_USE_CCACHE:STRING=oFF"
-)
-simple_git(https://github.com/capstone-engine/capstone 087889d # next
-    "-DCAPSTONE_BUILD_TESTS:STRING=OFF"
-)
-simple_git(https://github.com/mrexodia/z3 65df7aef50a0986588d332fa4255ba40486ef15c
+#simple_git(https://github.com/redis/hiredis afc29ee)
+#simple_git(https://github.com/Tessil/ordered-map 3774654)
+#simple_git(https://github.com/fmtlib/fmt 9.1.0
+#    "-DFMT_DOC:STRING=OFF"
+#    "-DFMT_TEST:STRING=OFF"
+#    "-DFMT_SYSTEM_HEADERS:STRING=ON"
+#)
+#simple_git(https://github.com/gabime/spdlog edc51df
+#    "-DSPDLOG_FMT_EXTERNAL:STRING=ON"
+#    "-DSPDLOG_SYSTEM_INCLUDES:STRING=ON"
+#)
+#simple_submodule(LIEF
+#    "-DLIEF_EXAMPLES:STRING=OFF"
+#    "-DLIEF_USE_CCACHE:STRING=oFF"
+#)
+#simple_git(https://github.com/capstone-engine/capstone 087889d # next
+#    "-DCAPSTONE_BUILD_TESTS:STRING=OFF"
+#)
+simple_git(https://github.com/Z3Prover/z3 z3-4.12.2
     "-DZ3_BUILD_LIBZ3_SHARED:STRING=OFF"
 )
 include(xed.cmake)
 include(llvm.cmake)
-simple_git(https://github.com/mrexodia/remill system-llvm-include
-    "-DUSE_SYSTEM_DEPENDENCIES:STRING=ON"
-    "-DREMILL_ENABLE_TESTING:STRING=OFF"
-)
-simple_submodule(alive2)
-simple_submodule(souper)
+#simple_git(https://github.com/mrexodia/remill system-llvm-include-v2
+#    "-DUSE_SYSTEM_DEPENDENCIES:STRING=ON"
+#    "-DREMILL_ENABLE_TESTING:STRING=OFF"
+#)
+#simple_submodule(alive2)
+#simple_submodule(souper)
