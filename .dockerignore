@@ -1,0 +1,8 @@
+build*/
+cmake-build*/
+.idea/
+.vscode/
+Dockerfile
+*.md
+.dockerignore
+.git/

@@ -13,7 +13,7 @@ cmake --build build
 **Building with GCC is not supported.**
 
 ```sh
-sudo apt install gcc-multilib g++-multilib gcc-12 g++-12 flex bison
+sudo apt install cmake ninja-build gcc-multilib g++-multilib libstdc++-12-dev-armhf-cross gcc-12 g++-12 flex bison clang git
 cmake -B build "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
 cmake --build build
 ```
@@ -153,6 +153,29 @@ git submodule update
 cmake -B dependencies/build -S dependencies
 cmake --build dependencies/build
 ```
+
+## Docker
+
+For convenience there is a [`Dockerfile`](./Dockerfile) provided.
+
+To build:
+
+```
+git submodule update --init
+docker buildx build --platform linux/arm64,linux/amd64 -t ghcr.io/mrexodia/cxx-common-cmake:latest .
+```
+
+Then push (maintainer's only):
+
+```
+docker push ghcr.io/mrexodia/cxx-common-cmake:latest
+```
+
+The hash (tag) is generated from `python hash.py`
+
+References:
+- https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
+- https://docs.docker.com/build/building/multi-stage/
 
 ## GitHub Actions
 
