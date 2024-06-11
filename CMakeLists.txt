@@ -160,3 +160,9 @@ simple_git(https://github.com/mrexodia/remill system-llvm-include
 )
 simple_submodule(alive2)
 simple_submodule(souper)
+simple_git(https://github.com/klee/klee ad557cb0f8e20a0e4a86ea5fcd11ed95f5c3b637
+    "-DENABLE_TCMALLOC:STRING=OFF"
+    "-DENABLE_UNIT_TESTS:STRING=OFF"
+    "-DENABLE_SYSTEM_TESTS:STRING=OFF"
+    "-DENABLE_POSIX_RUNTIME:STRING=ON"
+)

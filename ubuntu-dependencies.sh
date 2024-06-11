@@ -19,5 +19,8 @@ apt-get update && apt-get install -y \
     flex \
     bison \
     clang \
+    libz-dev \
+    libsqlite3-dev \
+    sqlite3 \
     $cross_packages \
     && rm -rf /var/lib/apt/lists/*

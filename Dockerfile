@@ -22,5 +22,8 @@ ENV CMAKE_PREFIX_PATH=/cxx-common/install
 ENV LD_LIBRARY_PATH=/cxx-common/install/lib
 RUN apt-get update && apt-get install -y \
     libxml2 \
+    libz-dev \
+    libsqlite3-dev \
+    sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 LABEL org.opencontainers.image.source=https://github.com/mrexodia/cxx-common-cmake
