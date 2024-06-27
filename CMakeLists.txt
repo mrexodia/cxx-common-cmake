@@ -69,6 +69,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MS
     )
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND UNIX AND NOT APPLE)
+    # To compile shared libraries, everything needs to be compiled as position independent code when using clang on linux
+    set(ADDITIONAL_FLAGS
+        "-fPIC"
+    )
+endif()
+
 # Convert a CMake list to a space-separated list
 list(JOIN ADDITIONAL_FLAGS " " ADDITIONAL_FLAGS)
 
