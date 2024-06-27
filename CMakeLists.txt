@@ -161,7 +161,7 @@ simple_git(https://github.com/mrexodia/z3 65df7aef50a0986588d332fa4255ba40486ef1
 )
 include(xed.cmake)
 include(llvm.cmake)
-simple_git(https://github.com/mrexodia/remill system-llvm-include
+simple_git(https://github.com/lifting-bits/remill master
     "-DUSE_SYSTEM_DEPENDENCIES:STRING=ON"
     "-DREMILL_ENABLE_TESTING:STRING=OFF"
 )
