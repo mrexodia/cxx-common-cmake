@@ -1,7 +1,7 @@
 # Reference: https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
 
 # Build stage (no need to optimize for size)
-FROM ubuntu:22.04 as build
+FROM ubuntu:22.04 AS build
 WORKDIR /cxx-common
 COPY . .
 RUN ./ubuntu-dependencies.sh
@@ -15,7 +15,7 @@ RUN \
     rm -rf build
 
 # Actual final image
-FROM ubuntu:22.04 as cxx-common
+FROM ubuntu:22.04 AS cxx-common
 WORKDIR /cxx-common/install
 COPY --from=build /cxx-common/install .
 ENV CMAKE_PREFIX_PATH=/cxx-common/install

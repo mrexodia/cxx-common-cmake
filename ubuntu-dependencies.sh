@@ -13,6 +13,7 @@ else
 fi
 
 # Install the dependencies
+./kitware-archive.sh
 apt-get update && apt-get install -y \
     git \
     cmake \

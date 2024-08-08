@@ -174,7 +174,12 @@ Then push (maintainers only):
 docker push ghcr.io/mrexodia/cxx-common-cmake:latest
 ```
 
-The hash (tag) is generated from `python hash.py`
+Additionally generate the hash with `python hash.py` and push that tag:
+
+```
+docker tag ghcr.io/mrexodia/cxx-common-cmake:latest ghcr.io/mrexodia/cxx-common-cmake:20240808_b94d6786
+docker push ghcr.io/mrexodia/cxx-common-cmake:20240808_b94d6786
+```
 
 References:
 - https://www.docker.com/blog/faster-multi-platform-builds-dockerfile-cross-compilation-guide/
