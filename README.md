@@ -13,8 +13,8 @@ cmake --build build
 **Building with GCC is not supported.**
 
 ```sh
-sudo apt install cmake ninja-build gcc-multilib g++-multilib libstdc++-12-dev-armhf-cross gcc-12 g++-12 flex bison clang git
-cmake -B build "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
+sudo ./ubuntu-dependencies.sh
+cmake -B build "-DCMAKE_C_COMPILER=$(which clang)" "-DCMAKE_CXX_COMPILER=$(which clang)"
 cmake --build build
 ```
 
@@ -98,15 +98,18 @@ To update a dependency like LLVM all you have to do is modify the corresponding 
 ```cmake
 ExternalProject_Add(llvm
     URL
-        "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.4/llvm-project-15.0.4.src.tar.xz"
+        "https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/llvm-project-17.0.6.src.tar.xz"
     URL_HASH
-        "SHA256=a3112dca9bdea4095361829910b74fb6b9da8ae6e3500db67c43c540ad6072da"
+        "SHA256=58a8818c60e6627064f312dbf46c02d9949956558340938b71cf731ad8bc0813"
     CMAKE_CACHE_ARGS
         ${CMAKE_ARGS}
         "-DLLVM_ENABLE_PROJECTS:STRING=clang;lld"
         "-DLLVM_ENABLE_ASSERTIONS:STRING=ON"
         "-DLLVM_ENABLE_DUMP:STRING=ON"
         "-DLLVM_ENABLE_RTTI:STRING=ON"
+        "-DLLVM_ENABLE_LIBEDIT:STRING=OFF"
+        "-DLLVM_PARALLEL_LINK_JOBS:STRING=1"
+        "-DLLVM_ENABLE_DIA_SDK:STRING=OFF"
     CMAKE_GENERATOR
         "Ninja"
     SOURCE_SUBDIR
@@ -165,7 +168,7 @@ git submodule update --init
 docker buildx build --platform linux/arm64,linux/amd64 -t ghcr.io/mrexodia/cxx-common-cmake:latest .
 ```
 
-Then push (maintainer's only):
+Then push (maintainers only):
 
 ```
 docker push ghcr.io/mrexodia/cxx-common-cmake:latest
@@ -179,7 +182,7 @@ References:
 
 ## GitHub Actions
 
-Below is an example `.github/workflows/build.yml` that uses `hash.py` to build and cache the dependencies:
+Below is an example `.github/workflows/build.yml` that uses `hash.py` to build and cache the dependencies (it assumes this repository was placed in the `dependencies` folder):
 
 ```yml
 name: build
@@ -232,13 +235,12 @@ jobs:
       - name: Build Dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib flex bison
-          cmake -B dependencies/build -S dependencies "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
+          sudo ./ubuntu-dependencies.sh
+          cmake -B dependencies/build -S dependencies "-DCMAKE_C_COMPILER=$(which clang)" "-DCMAKE_CXX_COMPILER=$(which clang)"
           cmake --build dependencies/build
 
       - name: Build Project
         run: |
-          cmake -B build -G Ninja "-DCMAKE_BUILD_TYPE=Debug" "-DCMAKE_PREFIX_PATH=$(pwd)/dependencies/build/install" "-DCMAKE_C_COMPILER=$(which clang-14)" "-DCMAKE_CXX_COMPILER=$(which clang++-14)"
+          cmake -B build -G Ninja "-DCMAKE_BUILD_TYPE=Debug" "-DCMAKE_PREFIX_PATH=$(pwd)/dependencies/build/install" "-DCMAKE_C_COMPILER=$(which clang)" "-DCMAKE_CXX_COMPILER=$(which clang)"
           cmake --build build
 ```

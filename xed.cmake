@@ -1,7 +1,7 @@
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 message(STATUS "Python3: ${Python3_EXECUTABLE}")
 
-# Reference: /Users/admin/Projects/cxx-common/ports/xed/portfile.cmake
+# Reference: https://github.com/lifting-bits/cxx-common/blob/master/ports/xed/portfile.cmake
 
 # TODO: pass compiler flags
 

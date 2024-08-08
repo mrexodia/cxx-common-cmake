@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 
 # Bail out early for multi-config generators
 if(GENERATOR_IS_MULTI_CONFIG)
-    message(FATAL_ERROR "Multi-config generators are not supported. Use Make/NMake instead")
+    message(FATAL_ERROR "Multi-config generators are not supported. Use Make/NMake/Ninja instead")
 endif()
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
@@ -59,7 +59,16 @@ function(ExternalProject_Add name)
     else()
         message(STATUS "ExternalProject: ${name}")
     endif()
-    _ExternalProject_Add(${name} ${ARGN} ${HOOK_ARGS})
+    _ExternalProject_Add(${name} ${ARGN} ${HOOK_ARGS}
+        # Reference: https://www.scivision.dev/cmake-external-project-ninja-verbose/
+        USES_TERMINAL_DOWNLOAD ON
+        USES_TERMINAL_UPDATE ON
+        USES_TERMINAL_PATCH ON
+        USES_TERMINAL_CONFIGURE ON
+        USES_TERMINAL_BUILD ON
+        USES_TERMINAL_INSTALL ON
+        USES_TERMINAL_TEST ON
+    )
 endfunction()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
@@ -128,35 +137,36 @@ endfunction()
 
 simple_git(https://github.com/gflags/gflags v2.2.2)
 simple_git(https://github.com/google/glog v0.6.0)
-simple_git(https://github.com/google/googletest release-1.12.1
+simple_git(https://github.com/google/googletest v1.15.2
     "-Dgtest_force_shared_crt:STRING=ON"
 )
-simple_git(https://github.com/redis/hiredis afc29ee)
-simple_git(https://github.com/Tessil/ordered-map 3774654)
-simple_git(https://github.com/fmtlib/fmt 9.1.0
+simple_git(https://github.com/Tessil/ordered-map v1.1.0)
+simple_git(https://github.com/fmtlib/fmt 11.0.2
     "-DFMT_DOC:STRING=OFF"
     "-DFMT_TEST:STRING=OFF"
     "-DFMT_SYSTEM_HEADERS:STRING=ON"
 )
-simple_git(https://github.com/gabime/spdlog edc51df
+simple_git(https://github.com/gabime/spdlog v1.14.1
     "-DSPDLOG_FMT_EXTERNAL:STRING=ON"
     "-DSPDLOG_SYSTEM_INCLUDES:STRING=ON"
+    "-DSPDLOG_BUILD_EXAMPLE:STRING=OFF"
 )
-simple_submodule(LIEF
+simple_git(https://github.com/nlohmann/json v3.11.3
+    "-DJSON_BuildTests:STRING=OFF"
+)
+simple_git(https://github.com/lief-project/LIEF 0.15.1
     "-DLIEF_EXAMPLES:STRING=OFF"
-    "-DLIEF_USE_CCACHE:STRING=oFF"
+    "-DLIEF_USE_CCACHE:STRING=OFF"
 )
-simple_git(https://github.com/capstone-engine/capstone 087889d # next
+simple_git(https://github.com/capstone-engine/capstone 5.0.1
     "-DCAPSTONE_BUILD_TESTS:STRING=OFF"
 )
-simple_git(https://github.com/mrexodia/z3 65df7aef50a0986588d332fa4255ba40486ef15c
+simple_git(https://github.com/Z3Prover/z3 z3-4.13.0
     "-DZ3_BUILD_LIBZ3_SHARED:STRING=OFF"
 )
 include(xed.cmake)
 include(llvm.cmake)
-simple_git(https://github.com/mrexodia/remill system-llvm-include
+simple_git(https://github.com/lifting-bits/remill 7f091d4256060c254fcd15f35fd8b9bd6abd157f # master at 2024-08-08
     "-DUSE_SYSTEM_DEPENDENCIES:STRING=ON"
     "-DREMILL_ENABLE_TESTING:STRING=OFF"
 )
-simple_submodule(alive2)
-simple_submodule(souper)

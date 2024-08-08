@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Determine the right libstdc++ cross-compilation package
+# Reference: https://packages.ubuntu.com/jammy/devel/
 arch=$(uname -m)
 if [ "$arch" == "aarch64" ]; then
     cross_packages="libstdc++-12-dev-armhf-cross"
@@ -19,5 +20,10 @@ apt-get update && apt-get install -y \
     flex \
     bison \
     clang \
+    libxml2-dev \
+    ncurses-dev \
+    libz-dev \
+    libsqlite3-dev \
+    sqlite3 \
     $cross_packages \
     && rm -rf /var/lib/apt/lists/*
